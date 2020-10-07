@@ -21,25 +21,28 @@ def get_html(url):
 
 
 def parse_page(content):
-    content = content.decode('utf-8')
-    k = re.finditer("(^#{6})(.|\n)+?(</details>$)", content, flags=re.MULTILINE)
-    test_list = []
-    counter = 0
-    for i in k:
-        counter += 1
-        question = re.search("[^#{6} \d+. ](.+)", i.group(0))
-        task = re.search("(```)((.|\n)+?)(```)", i.group(0))
-        option_list = [ans.group(2) for ans in re.finditer("(-\s\w:\s)(.+$)", i.group(0), flags=re.MULTILINE)]
-        answer = re.search("(^#{4} Answer: .)((.|\n)+?)(</p>)", i.group(0), flags=re.MULTILINE)
-        test_list.append({
-            "id": counter,
-            "question": question.group(0) if question else "",
-            "task": task.group(2).strip() if task else "",
-            "option_list": option_list,
-            "answer": (ord(answer.group(1)[-1].lower()) - 96) - 1,
-            "explanation": answer.group(2).strip()
-        })
-    return test_list
+    try:
+        content = content.decode('utf-8')
+        k = re.finditer("(^#{6})(.|\n)+?(</details>$)", content, flags=re.MULTILINE)
+        test_list = []
+        counter = 0
+        for i in k:
+            counter += 1
+            question = re.search("[^#{6} \d+. ](.+)", i.group(0))
+            task = re.search("(```)((.|\n)+?)(```)", i.group(0))
+            option_list = [ans.group(2) for ans in re.finditer("(-\s\w:\s)(.+$)", i.group(0), flags=re.MULTILINE)]
+            answer = re.search("(^#{4} Answer: .)((.|\n)+?)(</p>)", i.group(0), flags=re.MULTILINE)
+            test_list.append({
+                "id": counter,
+                "question": question.group(0) if question else "",
+                "task": task.group(2).strip() if task else "",
+                "option_list": option_list,
+                "answer": (ord(answer.group(1)[-1].lower()) - 96) - 1,
+                "explanation": answer.group(2).strip()
+            })
+        return test_list
+    except:
+        return 
 
 
 @app.route('/', methods=['GET'])
